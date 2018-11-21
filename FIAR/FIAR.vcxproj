@@ -21,6 +21,9 @@
   <ItemGroup>
     <ClCompile Include="FIAR.c" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{C0204823-351C-48C8-B722-053732951511}</ProjectGuid>
