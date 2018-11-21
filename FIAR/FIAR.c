@@ -1,5 +1,8 @@
-// 主程序文件
-#include <stdio.h>
+// Main Program
+#pragma once
+#include "board.h"
+#include "menu.h"
+
 int main() {
 
 }
