@@ -24,6 +24,9 @@
     <ClCompile Include="board.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="menu.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />

@@ -23,6 +23,7 @@
     <ClCompile Include="FIAR.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="menu.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
