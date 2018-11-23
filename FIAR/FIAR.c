@@ -14,7 +14,7 @@ int main() {
             case 4: break;
             case 5: ret = displayTutorial(); break;
             case 6: ret = displayDeveloperInfo(); break;
-            case 7: return 0;
+            case 7: displayExitInfo(); return 0;
         }
         if (ret == -1) { printf("An error occured in program %d", index); }
     }
