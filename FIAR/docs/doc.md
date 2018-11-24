@@ -32,7 +32,7 @@ Return the next player's id (1 or 2) if the game still goes on, the negation of 
 
 Return a string recording the current status of the board.
 
-> `int loadBoard(Board* board, char* savaData)` //Zhu
+> `int loadBoard(Board* board, char* saveData)` //Zhu
 
 Load from a given data string. Return 0 for success, 1 for invalid saveData
 
