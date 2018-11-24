@@ -1,5 +1,7 @@
 #pragma once
 #include "board.h"
+#include <conio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 // Class for game board
@@ -8,8 +10,10 @@ struct Board* newBoard() {
     struct Board* board = malloc(sizeof(struct Board));
     memset(board->board, 0, sizeof(board->board));
     board->currentPlayer = 1;
-    board->gameStatus    = 0;
+    board->gameStatus    = 1;
     board->movesCount    = 0;
+    board->currentCordY  = 0;
+    board->currentCordX  = 0;
     return board;
 }
 
@@ -21,14 +25,15 @@ int placePieceBoard(struct Board* board, int cordx, int cordy) {
     board->moves[board->movesCount].player = board->currentPlayer;
     board->movesCount++;
     board->currentPlayer = 1 + board->currentPlayer & 1;
-    return checkStatusBoard(board);
+    board->gameStatus    = checkStatusBoard(board);
+    return board->gameStatus;
 }
 
 struct CharPair encodeMove(struct Move move) {
     struct CharPair ret;
-    int value = (move.cordx * 16 + move.cordy) + (move.player - 1) * 300;
-    ret.fst   = 'a' + value / 26;
-    ret.snd   = 'a' + value % 26;
+    int             value = (move.cordx * 16 + move.cordy) + (move.player - 1) * 300;
+    ret.fst               = 'a' + value / 26;
+    ret.snd               = 'a' + value % 26;
     return ret;
 }
 
@@ -42,14 +47,16 @@ struct Move decodeMove(struct CharPair code) {
 }
 
 // Remember to free the memory afterwards!!!!!!!!!
-char* saveReplayBoard(struct Board* board) {
-    char* ret = malloc(512 * sizeof(char));
+int saveReplayBoard(struct Board* board) {
+    char code[512];
+    memset(code, 0, sizeof(code));
     for (int index = 0; index < board->movesCount; index++) {
         struct CharPair encodedMove = encodeMove(board->moves[index]);
-        ret[index * 2]              = encodedMove.fst;
-        ret[index * 2 + 1]          = encodedMove.snd;
+        code[index * 2]             = encodedMove.fst;
+        code[index * 2 + 1]         = encodedMove.snd;
     }
-    return ret;
+    printf("%s\n", code);
+    return 0;
 }
 
 int playReplayBoard(struct Board* board, char* replayData) {
@@ -58,8 +65,88 @@ int playReplayBoard(struct Board* board, char* replayData) {
     for (int index = 0; index < length; index += 2) {
         struct CharPair code     = {replayData[index], replayData[index + 1]};
         struct Move     moveTemp = decodeMove(code);
-        int ret = placePieceBoard(board, moveTemp.cordx, moveTemp.cordy);
+        int             ret      = placePieceBoard(board, moveTemp.cordx, moveTemp.cordy);
         if (ret != 1 && ret != 2) return 1;
+        displayBoard(board);
     }
     return 0;
 }
+int startGameBoard(struct Board* board, int type) {
+    displayBoard(board);
+    char data[512];
+    int  aiPlayer = 0;
+    if (type == 0) {
+        printf("Are you going first?(y/n)");
+        int op = 0;
+        while (op != 'y' && op != 'n') op = _getch();
+        aiPlayer = 1 + (op == 'y');
+    }
+    while (1) {
+        if (board->currentPlayer == aiPlayer && (board->gameStatus == 1 || board->gameStatus == 2)) {
+            aiConsiderBoard(board);
+        } else {
+            int op = _getch();
+            switch (op) {
+                case 13: // enter
+                    if (board->gameStatus == 1 || board->gameStatus == 2) {
+                        int status = placePieceBoard(board, board->currentCordX, board->currentCordY);
+                        displayBoard(board);
+                        if (status == 0) printf("Invalid Move.\n");
+                        if (status < 0) printf("Player %d wins!\n", status - 1);
+                        if (status == 3) printf("It's a draw.");
+                        if (status == 1 || status == 2) printf("Next move: Player %d\n", status);
+                    } else {
+                        displayBoard(board);
+                        printf("The Game has ended.\n");
+                    }
+                    break;
+                case 224: // arrows id
+                    op = _getch();
+                    switch (op) {
+                        case 75:
+                            board->currentCordX = board->currentCordX > 0 ? board->currentCordX - 1 : 0; // left
+                            break;
+                        case 72: // up
+                            board->currentCordY = board->currentCordY > 0 ? board->currentCordY - 1 : 0;
+                            break;
+                        case 80: // down
+                            board->currentCordY = board->currentCordY < 14 ? board->currentCordY + 1 : 14;
+                            break;
+                        case 77: // right
+                            board->currentCordX = board->currentCordX < 14 ? board->currentCordX + 1 : 14;
+                            break;
+                    }
+                    displayBoard(board);
+                    break;
+                case 58: // :
+                    printf("Waiting for the second key...");
+                    op = _getch();
+                    switch (op) {
+                        case 113: saveBoard(board); break;
+                        case 119:
+                            scanf_s("%s", data, 512);
+                            loadBoard(board, data);
+                            break;
+                        case 97: saveReplayBoard(board); break;
+                        case 115:
+                            scanf_s("%s", data, 512);
+                            playReplayBoard(board, data);
+                            break;
+                        default: displayBoard(board);
+                    }
+                    break;
+            }
+        }
+    }
+}
+
+int aiConsiderBoard(struct Board* board){
+    
+}
+
+int clearBoard(struct Board* board) {}
+int displayBoard(struct Board* board) {}
+int undoBoard(struct Board* board) {}
+int checkStatusBoard(struct Board* board) {}
+int saveBoard(struct Board* board) {}
+int loadBoard(struct Board* board, char* saveData) {}
