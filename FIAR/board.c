@@ -1,5 +1,6 @@
 #pragma once
 #include "board.h"
+#include <conio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,6 +12,8 @@ struct Board* newBoard() {
     board->currentPlayer = 1;
     board->gameStatus    = 1;
     board->movesCount    = 0;
+    board->currentCordY  = 0;
+    board->currentCordX  = 0;
     return board;
 }
 
@@ -45,13 +48,14 @@ struct Move decodeMove(struct CharPair code) {
 
 // Remember to free the memory afterwards!!!!!!!!!
 int saveReplayBoard(struct Board* board) {
-    char code[512]= {};
+    char code[512];
+    memset(code, 0, sizeof(code));
     for (int index = 0; index < board->movesCount; index++) {
         struct CharPair encodedMove = encodeMove(board->moves[index]);
-        code[index * 2]              = encodedMove.fst;
-        code[index * 2 + 1]          = encodedMove.snd;
+        code[index * 2]             = encodedMove.fst;
+        code[index * 2 + 1]         = encodedMove.snd;
     }
-    printf("%s\n",code);
+    printf("%s\n", code);
     return 0;
 }
 
@@ -68,33 +72,81 @@ int playReplayBoard(struct Board* board, char* replayData) {
     return 0;
 }
 int startGameBoard(struct Board* board, int type) {
+    displayBoard(board);
+    char data[512];
+    int  aiPlayer = 0;
+    if (type == 0) {
+        printf("Are you going first?(y/n)");
+        int op = 0;
+        while (op != 'y' && op != 'n') op = _getch();
+        aiPlayer = 1 + (op == 'y');
+    }
     while (1) {
-        displayBoard(board);
-        int param1, param2;
-        scanf_s("%d", &param1);
-        if (param1 > 16) {
-            switch (param1) {
-                case 17: saveBoard(board); break;
-                case 18:
-                    char* data;
-                    scanf("%s", data);
-                    loadBoard(board, data);
-                    break;
-                case 19: saveReplayBoard(board); break;
-                case 20: return 0;
-            }
+        if (board->currentPlayer == aiPlayer && (board->gameStatus == 1 || board->gameStatus == 2)) {
+            aiConsiderBoard(board);
         } else {
-            if (board->gameStatus == 1 && board->gameStatus == 2) {
-                scanf_s("%d", param2);
-                int status = placePieceBoard(board, param1, param2);
-                if (status == 0) printf("Invalid Move.\n");
-                if (status < 0) printf("Player %d wins!\n", status - 1);
-                if (status == 3) printf("It's a draw.");
-                if (status == 1 || status == 2) printf("Next move: Player %d\n", status);
-            } else {
-                printf("The Game has ended.\n");
+            int op = _getch();
+            switch (op) {
+                case 13: // enter
+                    if (board->gameStatus == 1 || board->gameStatus == 2) {
+                        int status = placePieceBoard(board, board->currentCordX, board->currentCordY);
+                        displayBoard(board);
+                        if (status == 0) printf("Invalid Move.\n");
+                        if (status < 0) printf("Player %d wins!\n", status - 1);
+                        if (status == 3) printf("It's a draw.");
+                        if (status == 1 || status == 2) printf("Next move: Player %d\n", status);
+                    } else {
+                        displayBoard(board);
+                        printf("The Game has ended.\n");
+                    }
+                    break;
+                case 224: // arrows id
+                    op = _getch();
+                    switch (op) {
+                        case 75:
+                            board->currentCordX = board->currentCordX > 0 ? board->currentCordX - 1 : 0; // left
+                            break;
+                        case 72: // up
+                            board->currentCordY = board->currentCordY > 0 ? board->currentCordY - 1 : 0;
+                            break;
+                        case 80: // down
+                            board->currentCordY = board->currentCordY < 14 ? board->currentCordY + 1 : 14;
+                            break;
+                        case 77: // right
+                            board->currentCordX = board->currentCordX < 14 ? board->currentCordX + 1 : 14;
+                            break;
+                    }
+                    displayBoard(board);
+                    break;
+                case 58: // :
+                    printf("Waiting for the second key...");
+                    op = _getch();
+                    switch (op) {
+                        case 113: saveBoard(board); break;
+                        case 119:
+                            scanf_s("%s", data, 512);
+                            loadBoard(board, data);
+                            break;
+                        case 97: saveReplayBoard(board); break;
+                        case 115:
+                            scanf_s("%s", data, 512);
+                            playReplayBoard(board, data);
+                            break;
+                        default: displayBoard(board);
+                    }
+                    break;
             }
         }
-        printf("Awaiting your command: ...\n");
     }
 }
+
+int aiConsiderBoard(struct Board* board){
+    
+}
+
+int clearBoard(struct Board* board) {}
+int displayBoard(struct Board* board) {}
+int undoBoard(struct Board* board) {}
+int checkStatusBoard(struct Board* board) {}
+int saveBoard(struct Board* board) {}
+int loadBoard(struct Board* board, char* saveData) {}

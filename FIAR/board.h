@@ -11,6 +11,8 @@ struct Board {
     int         movesCount;
     int         currentPlayer;
     int         gameStatus;
+    int         currentCordX;
+    int         currentCordY;
 };
 struct CharPair {
     char fst, snd;
@@ -28,3 +30,4 @@ int             saveReplayBoard(struct Board* board);
 int             playReplayBoard(struct Board* board, char* replayData);
 struct CharPair encodeMove(struct Move move);
 struct Move     decodeMove(struct CharPair code);
+int             aiConsiderBoard(struct Board* board);

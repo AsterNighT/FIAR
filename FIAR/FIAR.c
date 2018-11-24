@@ -5,6 +5,7 @@
 
 int main() {
     struct Board* gameBoard = newBoard();
+    char          data[512];
     while (1) {
         int index, ret = 0;
         index = displayMainMenu();
@@ -12,14 +13,12 @@ int main() {
             case 1: ret = startGameBoard(gameBoard, 0); break;
             case 2: ret = startGameBoard(gameBoard, 1); break;
             case 3:
-                char* data;
-                scanf("%s", data);
-                loadGameBoard(gameBoard, data);
+                scanf_s("%s", data, 512);
+                loadBoard(gameBoard, data);
                 startGameBoard(gameBoard, 0);
                 break;
             case 4:
-                char* data;
-                scanf("%s", data);
+                scanf_s("%s", data, 512);
                 playReplayBoard(gameBoard, data);
                 break;
             case 5: ret = displayTutorial(); break;
