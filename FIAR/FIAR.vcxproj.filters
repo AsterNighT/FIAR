@@ -27,6 +27,9 @@
     <ClCompile Include="menu.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ai.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
@@ -39,6 +42,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="menu.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ai.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

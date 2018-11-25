@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ai.c" />
     <ClCompile Include="board.c" />
     <ClCompile Include="FIAR.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -30,6 +31,7 @@
     <None Include="docs\doc.md" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ai.h" />
     <ClInclude Include="board.h" />
     <ClInclude Include="menu.h" />
   </ItemGroup>

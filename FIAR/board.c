@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "ai.h"
 // Class for game board
 
 struct Board* newBoard() {
@@ -83,7 +84,8 @@ int startGameBoard(struct Board* board, int type) {
     }
     while (1) {
         if (board->currentPlayer == aiPlayer && (board->gameStatus == 1 || board->gameStatus == 2)) {
-            aiConsiderBoard(board);
+            struct Move move = aiConsiderBoard(board, 0);
+            placePieceBoard(board, move.cordx, move.cordy);
         } else {
             int op = _getch();
             switch (op) {
@@ -122,26 +124,23 @@ int startGameBoard(struct Board* board, int type) {
                     printf("Waiting for the second key...");
                     op = _getch();
                     switch (op) {
-                        case 113: saveBoard(board); break;
-                        case 119:
+                        case 113: saveBoard(board); break; // q
+                        case 119:                          // w
                             scanf_s("%s", data, 512);
                             loadBoard(board, data);
                             break;
-                        case 97: saveReplayBoard(board); break;
-                        case 115:
+                        case 97: saveReplayBoard(board); break; // a
+                        case 115:                               // s
                             scanf_s("%s", data, 512);
                             playReplayBoard(board, data);
                             break;
+                        case 114: aiConsiderBoard(board, 1); break;
                         default: displayBoard(board);
                     }
                     break;
             }
         }
     }
-}
-
-int aiConsiderBoard(struct Board* board){
-    
 }
 
 int clearBoard(struct Board* board) {}
