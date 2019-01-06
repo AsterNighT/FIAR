@@ -94,7 +94,7 @@ int startGameBoard(struct Board* board, int type) {
                         int status = placePieceBoard(board, board->currentCordX, board->currentCordY);
                         displayBoard(board);
                         if (status == 0) printf("Invalid Move.\n");
-                        if (status < 0) printf("Player %d wins!\n", status - 1);
+                        if (status < 0) printf("Player %d wins!\n", -status);
                         if (status == 3) printf("It's a draw.");
                         if (status == 1 || status == 2) printf("Next move: Player %d\n", status);
                     } else {
