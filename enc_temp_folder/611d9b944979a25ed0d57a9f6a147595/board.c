@@ -137,7 +137,6 @@ int startGameBoard(struct Board* board, int type) {
 					playReplayBoard(board, data);
 					break;
 				case 114: aiConsiderBoard(board, 1); break;
-				case 117: undoBoard(struct Board* board); break;//u
 				default: displayBoard(board);
 				}
 				break;
