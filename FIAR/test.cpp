@@ -1,0 +1,3 @@
+int clearBoard(Board* board) {
+	
+}

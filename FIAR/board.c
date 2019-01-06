@@ -143,7 +143,14 @@ int startGameBoard(struct Board* board, int type) {
     }
 }
 
-int clearBoard(struct Board* board) {}
+int clearBoard(struct Board* board) {
+	board->currentPlayer = 1;
+	board->gameStatus = 1;
+	board->movesCount = 0;
+	board->currentCordY = 0;
+	board->currentCordX = 0;
+	return board;
+}
 int displayBoard(struct Board* board) {}
 int undoBoard(struct Board* board) {}
 int checkStatusBoard(struct Board* board) {}
