@@ -1,3 +1,0 @@
-int clearBoard(Board* board) {
-	
-}
