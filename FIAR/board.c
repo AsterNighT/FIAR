@@ -161,32 +161,51 @@ int clearBoard(struct Board* board) {
 	board->currentCordX = 0;
 	return board;
 }
-int displayBoard(struct Board* board) {}
-int undoBoard(struct Board* board) {
-	if (board->movesCount == 0) {
-		return 1;
+int displayBoard(struct Board* board) {
+	const int LT = 0, TOP = 1, RT = 2;
+	const int LEFT = 3, CENTER = 4, RIGHT = 5;
+	const int LF = 6, FOOT = 7, RF = 8;
+	const int SPACE = 9;
+	const int DIMENSION = 15;
+	int initialboard[15][15];
+	for (int j = 0; j < DIMENSION; j++)
+		for (int k = 0; k < DIMENSION; k++)
+			initialboard[j][k] = SPACE;
+
+	initialboard[0][0] = LT; initialboard[0][DIMENSION - 1] = RT; initialboard[DIMENSION - 1][0] = LF; initialboard[DIMENSION - 1][DIMENSION - 1] = RF;
+	for (int i = 1; i < DIMENSION - 1; i += 1) {
+		initialboard[0][i] = TOP;
+		initialboard[DIMENSION - 1][i] = FOOT;
+		initialboard[i][0] = LEFT;
+		initialboard[i][DIMENSION - 1] = RIGHT;
 	}
-	else if (board->movesCount == 1) {
-		board->board[board->moves[board->movesCount].cordx][board->moves[board->movesCount].cordy] = 0;
-		board->moves[board->movesCount].cordx = 0;
-		board->moves[board->movesCount].cordy = 0;
-		board->moves[board->movesCount].player = 0;
-		board->currentPlayer = 1;
-		board->movesCount = 0;
-		return 0;
+	for (int j = 1; j < DIMENSION - 1; j += 1)
+		for (int k = 1; k < DIMENSION - 1; k += 1) {
+			initialboard[j][k] = CENTER;
+		}
+	printf("\n");                                        /// BUG 2 boards   no"reset"
+	for (int j = 0; j < DIMENSION; j++) {               /// columns
+		for (int k = 0; k < DIMENSION; k++)
+			/// rows
+			switch (initialboard[j][k]) {
+			case 0:printf("©° "); break;
+			case 1:printf("©Ð "); break;
+			case 2:printf("©´ "); break;
+			case 3:printf("©À "); break;
+			case 4:printf("©à "); break;
+			case 5:printf("©È "); break;
+			case 6:printf("©¸ "); break;
+			case 7:printf("©Ø "); break;
+			case 8:printf("©¼ "); break;
+			case 9:printf(""); break;
+
+
+			}
+		putchar('\n');
 	}
-	else {
-		board->board[board->moves[board->movesCount].cordx][board->moves[board->movesCount].cordy] = 0;
-		board->board[board->moves[board->movesCount].cordx - 1][board->moves[board->movesCount].cordy - 1] = 0;
-		board->moves[board->movesCount].cordx = 0;
-		board->moves[board->movesCount].cordy = 0;
-		board->moves[board->movesCount].player = 0;
-		board->moves[board->movesCount - 1].cordx = 0;
-		board->moves[board->movesCount - 1].cordy = 0;
-		board->moves[board->movesCount - 1].player = 0;
-		board->movesCount -= 2;
-		return 0;
-	}
+	if (board->currentPlayer == 1) printf("  player 1 turn\n");
+	else if (board->currentPlayer == 2)   printf("    player 2 turn\n");
+	printf("    POSITION(%d,%d)\n", board->currentCordX, board->currentCordY);
 }
 int checkStatusBoard(struct Board* board) {}
 int saveBoard(struct Board* board) {}
