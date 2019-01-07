@@ -137,7 +137,7 @@ int startGameBoard(struct Board* board, int type) {
 					playReplayBoard(board, data);
 					break;
 				case 114: aiConsiderBoard(board, 1); break;
-				case 117: undoBoard(struct Board* board); break;//u
+				case 117: undoBoard(board); break;//u
 				default: displayBoard(board);
 				}
 				break;
@@ -147,6 +147,13 @@ int startGameBoard(struct Board* board, int type) {
 }
 
 int clearBoard(struct Board* board) {
+	int i;
+	for (i = 0; i <= board->movesCount; i++) {
+		board->board[board->moves[i].cordx][board->moves[i].cordy] = 0;
+		board->moves[i].cordx = 0;
+		board->moves[i].cordy = 0;
+		board->moves[i].player = 0;
+	}
 	board->currentPlayer = 1;
 	board->gameStatus = 1;
 	board->movesCount = 0;
