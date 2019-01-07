@@ -161,6 +161,32 @@ int clearBoard(struct Board* board) {
 	board->currentCordX = 0;
 	return board;
 }
+int undoBoard(struct Board* board) {
+	if (board->movesCount == 0) {
+		return 1;
+	}
+	else if (board->movesCount == 1) {
+		board->board[board->moves[board->movesCount].cordx][board->moves[board->movesCount].cordy] = 0;
+		board->moves[board->movesCount].cordx = 0;
+		board->moves[board->movesCount].cordy = 0;
+		board->moves[board->movesCount].player = 0;
+		board->currentPlayer = 1;
+		board->movesCount = 0;
+		return 0;
+	}
+	else {
+		board->board[board->moves[board->movesCount].cordx][board->moves[board->movesCount].cordy] = 0;
+		board->board[board->moves[board->movesCount].cordx - 1][board->moves[board->movesCount].cordy - 1] = 0;
+		board->moves[board->movesCount].cordx = 0;
+		board->moves[board->movesCount].cordy = 0;
+		board->moves[board->movesCount].player = 0;
+		board->moves[board->movesCount - 1].cordx = 0;
+		board->moves[board->movesCount - 1].cordy = 0;
+		board->moves[board->movesCount - 1].player = 0;
+		board->movesCount -= 2;
+		return 0;
+	}
+}
 int displayBoard(struct Board* board) {
 	const int LT = 0, TOP = 1, RT = 2;
 	const int LEFT = 3, CENTER = 4, RIGHT = 5;
