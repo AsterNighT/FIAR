@@ -161,33 +161,98 @@ int clearBoard(struct Board* board) {
 	board->currentCordX = 0;
 	return board;
 }
-int displayBoard(struct Board* board) {}
-int undoBoard(struct Board* board) {
-	if (board->movesCount == 0) {
-		return 1;
+int displayBoard(struct Board* board) {
+	const int LT = 0, TOP = 1, RT = 2;
+	const int LEFT = 3, CENTER = 4, RIGHT = 5;
+	const int LF = 6, FOOT = 7, RF = 8;
+	const int SPACE = 9;
+	const int DIMENSION = 15;
+	int initialboard[15][15];
+	for (int j = 0; j < DIMENSION; j++)
+		for (int k = 0; k < DIMENSION; k++)
+			initialboard[j][k] = SPACE;
+
+	initialboard[0][0] = LT; initialboard[0][DIMENSION - 1] = RT; initialboard[DIMENSION - 1][0] = LF; initialboard[DIMENSION - 1][DIMENSION - 1] = RF;
+	for (int i = 1; i < DIMENSION - 1; i += 1) {
+		initialboard[0][i] = TOP;
+		initialboard[DIMENSION - 1][i] = FOOT;
+		initialboard[i][0] = LEFT;
+		initialboard[i][DIMENSION - 1] = RIGHT;
 	}
-	else if (board->movesCount == 1) {
-		board->board[board->moves[board->movesCount].cordx][board->moves[board->movesCount].cordy] = 0;
-		board->moves[board->movesCount].cordx = 0;
-		board->moves[board->movesCount].cordy = 0;
-		board->moves[board->movesCount].player = 0;
-		board->currentPlayer = 1;
-		board->movesCount = 0;
-		return 0;
+	for (int j = 1; j < DIMENSION - 1; j += 1)
+		for (int k = 1; k < DIMENSION - 1; k += 1) {
+			initialboard[j][k] = CENTER;
+		}
+	printf("\n");                                        /// BUG 2 boards   no"reset"
+	for (int j = 0; j < DIMENSION; j++) {               /// columns
+		for (int k = 0; k < DIMENSION; k++)
+			/// rows
+			switch (initialboard[j][k]) {
+			case 0:printf("┌ "); break;
+			case 1:printf("┬ "); break;
+			case 2:printf("┐ "); break;
+			case 3:printf("├ "); break;
+			case 4:printf("┼ "); break;
+			case 5:printf("┤ "); break;
+			case 6:printf("└ "); break;
+			case 7:printf("┴ "); break;
+			case 8:printf("┘ "); break;
+			case 9:printf(""); break;
+
+
+			}
+		putchar('\n');
 	}
-	else {
-		board->board[board->moves[board->movesCount].cordx][board->moves[board->movesCount].cordy] = 0;
-		board->board[board->moves[board->movesCount].cordx - 1][board->moves[board->movesCount].cordy - 1] = 0;
-		board->moves[board->movesCount].cordx = 0;
-		board->moves[board->movesCount].cordy = 0;
-		board->moves[board->movesCount].player = 0;
-		board->moves[board->movesCount - 1].cordx = 0;
-		board->moves[board->movesCount - 1].cordy = 0;
-		board->moves[board->movesCount - 1].player = 0;
-		board->movesCount -= 2;
-		return 0;
-	}
+	if (board->currentPlayer == 1) printf("  player 1 turn\n");
+	else if (board->currentPlayer == 2)   printf("    player 2 turn\n");
+	printf("    POSITION(%d,%d)\n", board->currentCordX, board->currentCordY);
 }
-int checkStatusBoard(struct Board* board) {}
+int checkStatusBoard(struct Board* board) {
+	const int DIMENSION = 15;
+	if (board->movesCount == 225)return 3;
+	int w = 1, x = 1, y = 1, z = 1, i;//累计四个方向的连续相同棋子数目
+	for (i = 1; i < 5; i++) {
+		if (board->moves[board->movesCount].cordy + i < DIMENSION&&board->board[board->moves[board->movesCount].cordx][board->moves[board->movesCount].cordy + i] == board->currentPlayer)w++;
+		else break;//向下检查
+	}
+	for (i = 1; i < 5; i++) {
+		if (board->moves[board->movesCount].cordy - i > 0 && board->board[board->moves[board->movesCount].cordx][board->moves[board->movesCount].cordy - i] == board->currentPlayer)w++;
+		else break;//向上检查
+	}
+	if (w >= 5)return -board->currentPlayer;//若果达到5个则判断当前走子玩家为赢家
+
+	for (i = 1; i < 5; i++) {
+		if (board->moves[board->movesCount].cordx + i < DIMENSION&&board->board[board->moves[board->movesCount].cordx + i][board->moves[board->movesCount].cordy] == board->currentPlayer)x++;
+		else break;//向右检查
+	}
+	for (i = 1; i < 5; i++) {
+		if (board->moves[board->movesCount].cordx - i > 0 && board->board[board->moves[board->movesCount].cordx - i][board->moves[board->movesCount].cordy] == board->currentPlayer)x++;
+		else break;//向左检查
+	}
+	if (x >= 5)return -board->currentPlayer;//若果达到5个则判断当前走子玩家为赢家
+
+	for (i = 1; i < 5; i++) {
+		if (board->moves[board->movesCount].cordx + i < DIMENSION&&board->moves[board->movesCount].cordy + i < DIMENSION&&board->board[board->moves[board->movesCount].cordx + i][board->moves[board->movesCount].cordy + i] == board->currentPlayer)y++;
+		else break;//向右下检查
+	}
+	for (i = 1; i < 5; i++) {
+		if (board->moves[board->movesCount].cordx - i > 0 && board->moves[board->movesCount].cordy - i > 0 && board->board[board->moves[board->movesCount].cordx - i][board->moves[board->movesCount].cordy - i] == board->currentPlayer)y++;
+		else break;//向左上检查
+	}
+	if (y >= 5)return -board->currentPlayer;//若果达到5个则判断当前走子玩家为赢家
+
+	for (i = 1; i < 5; i++) {
+		if (board->moves[board->movesCount].cordx + i < DIMENSION&&board->moves[board->movesCount].cordy - i>0 && board->board[board->moves[board->movesCount].cordx + i][board->moves[board->movesCount].cordy - i] == board->currentPlayer)z++;
+		else break;//向右上检查
+	}
+	for (i = 1; i < 5; i++) {
+		if (board->moves[board->movesCount].cordx - i > 0 && board->moves[board->movesCount].cordy + i < DIMENSION&&board->board[board->moves[board->movesCount].cordx - i][board->moves[board->movesCount].cordy + i] == board->currentPlayer)z++;
+		else break;//向左下检查
+	}
+	if (z >= 5)return -board->currentPlayer;
+
+	if (x < 5 && y < 5 && z < 5 && w < 5 && board->currentPlayer == 1)return 2;
+	if (x < 5 && y < 5 && z < 5 && w < 5 && board->currentPlayer == 2)return 1;
+}
 int saveBoard(struct Board* board) {}
 int loadBoard(struct Board* board, char* saveData) {}
