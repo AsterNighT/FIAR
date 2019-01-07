@@ -182,7 +182,6 @@ int undoBoard(struct Board* board) {
 	}
 }
 int checkStatusBoard(struct Board* board) {
-
 }
 int saveBoard(struct Board* board) {}
 int loadBoard(struct Board* board, char* saveData) {}
