@@ -159,7 +159,7 @@ int clearBoard(struct Board* board) {
 	board->movesCount = 0;
 	board->currentCordY = 0;
 	board->currentCordX = 0;
-	return board;
+	return 1;
 }
 int undoBoard(struct Board* board) {
 	if (board->movesCount == 0) {
@@ -280,5 +280,34 @@ int checkStatusBoard(struct Board* board) {
 	if (x < 5 && y < 5 && z < 5 && w < 5 && board->currentPlayer == 1)return 2;
 	if (x < 5 && y < 5 && z < 5 && w < 5 && board->currentPlayer == 2)return 1;
 }
-int saveBoard(struct Board* board) {}
-int loadBoard(struct Board* board, char* saveData) {}
+char saveBoard(struct Board* board) {
+	int i = 0, j = 0, m = 15, a, k = 0;
+	char s[255], data = 0, p[225];
+	for (i = 0; i < m; i++) {
+		for (j = 0; j < m; j++) {
+			a = board->board[i][j];
+			s[k++] = itoa(a);
+		}
+	}
+	for (k = 0; k < m*m; k++)
+		p[k] = strcat(s[k],  '/ n');
+	for (k = 1; k < m*m; k++)
+		data = strcat(p[k], p[k - 1]);
+	return data;
+}
+int loadBoard(struct Board* board, char* saveData) {
+	int i = 0, j = 0, m = 15, k = 0, s[255];
+	char c[] = " ", ;
+	for (i = 0, i < m; i++) {
+		for (j = 0; j < m; j++) {
+			char*p = strtok(saveDate, c);
+			s[k++] = p;
+			p = strtok(NULL, c)
+		}
+	}
+	k = 0;
+	for (i = 0, i < m; i++) {
+		for (j = 0; j < m; j++)
+			board->board[i][j] = s[k++];
+		return 1;
+	}
