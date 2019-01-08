@@ -20,7 +20,7 @@ struct CharPair {
 struct Board*   newBoard();
 int             startGameBoard(struct Board* board, int type);
 int             clearBoard(struct Board* board);
-int             displayBoard(struct Board* board);
+int             displayBoard(struct Board* board, int type);
 int             placePieceBoard(struct Board* board, int cordx, int cordy);
 int             undoBoard(struct Board* board);
 int             checkStatusBoard(struct Board* board);

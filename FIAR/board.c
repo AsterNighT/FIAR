@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ai.h"
+#include <windows.h>
 // Class for game board
 
 struct Board* newBoard() {
@@ -28,7 +29,7 @@ int placePieceBoard(struct Board* board, int cordx, int cordy) {
     board->movesCount++;
     board->gameStatus    = checkStatusBoard(board);
     board->currentPlayer = 1 + (board->currentPlayer & 1);
-    displayBoard(board);
+    displayBoard(board, 1);
     return board->gameStatus;
 }
 
@@ -70,7 +71,8 @@ int playReplayBoard(struct Board* board, char* replayData) {
         struct Move     moveTemp = decodeMove(code);
         int             ret      = placePieceBoard(board, moveTemp.cordx, moveTemp.cordy);
         if (ret != 1 && ret != 2) return 1;
-        displayBoard(board);
+        Sleep(1000);
+        displayBoard(board, 1);
     }
     return 0;
 }
@@ -84,7 +86,7 @@ int startGameBoard(struct Board* board, int type) {
         aiPlayer = 1 + (op == 'y');
     }
     clearBoard(board);
-    displayBoard(board);
+    displayBoard(board, 0);
     while (1) {
         if (board->currentPlayer == aiPlayer && (board->gameStatus == 1 || board->gameStatus == 2)) {
             struct Move move = aiConsiderBoard(board, 0);
@@ -95,13 +97,13 @@ int startGameBoard(struct Board* board, int type) {
                 case 13: // enter
                     if (board->gameStatus == 1 || board->gameStatus == 2) {
                         int status = placePieceBoard(board, board->currentCordX, board->currentCordY);
-                        displayBoard(board);
+                        displayBoard(board, 0);
                         if (status == 0) printf("Invalid Move.\n");
                         if (status < 0) printf("Player %d wins!\n", -status);
                         if (status == 3) printf("It's a draw.");
                         if (status == 1 || status == 2) printf("Next move: Player %d\n", status);
                     } else {
-                        displayBoard(board);
+                        displayBoard(board, 1);
                         printf("The Game has ended.\n");
                     }
                     break;
@@ -121,7 +123,7 @@ int startGameBoard(struct Board* board, int type) {
                             board->currentCordX = board->currentCordX < 14 ? board->currentCordX + 1 : 14;
                             break;
                     }
-                    displayBoard(board);
+                    displayBoard(board, 0);
                     break;
                 case 58: // :
                     printf("Waiting for the second key...");
@@ -140,7 +142,7 @@ int startGameBoard(struct Board* board, int type) {
                         case 114: aiConsiderBoard(board, 1); break;
                         case 117: undoBoard(board); break; // u
                         case 122: return 0; // z
-                        default: displayBoard(board);
+                        default: displayBoard(board, 0);
                     }
                     break;
             }
@@ -186,10 +188,10 @@ int undoBoard(struct Board* board) {
         board->movesCount -= 2;
         return 0;
     }
-    displayBoard(board);
+    displayBoard(board, 1);
 }
 
-int displayBoard(struct Board* board) {
+int displayBoard(struct Board* board, int type) {
     clear();
     const int LT = 0, TOP = 1, RT = 2;
     const int LEFT = 3, CENTER = 4, RIGHT = 5;
@@ -219,7 +221,7 @@ int displayBoard(struct Board* board) {
             if (board->board[j][k] != 0) { initialboard[j][k] = board->board[j][k] + 9; }
         }
     }
-    initialboard[board->currentCordX][board->currentCordY] = POS;
+    if(type == 0) initialboard[board->currentCordX][board->currentCordY] = POS;
 
     printf("\n");                         /// BUG 2 boards   no"reset"
     for (int k = 0; k < DIMENSION; k++) { /// columns
