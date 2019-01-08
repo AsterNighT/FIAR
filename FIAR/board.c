@@ -166,23 +166,23 @@ int undoBoard(struct Board* board) {
 		return 1;
 	}
 	else if (board->movesCount == 1) {
-		board->board[board->moves[board->movesCount].cordx][board->moves[board->movesCount].cordy] = 0;
-		board->moves[board->movesCount].cordx = 0;
-		board->moves[board->movesCount].cordy = 0;
-		board->moves[board->movesCount].player = 0;
+		board->board[board->moves[board->movesCount-1].cordx][board->moves[board->movesCount-1].cordy] = 0;
+		board->moves[board->movesCount-1].cordx = 0;
+		board->moves[board->movesCount-1].cordy = 0;
+		board->moves[board->movesCount-1].player = 0;
 		board->currentPlayer = 1;
 		board->movesCount = 0;
 		return 0;
 	}
 	else {
-		board->board[board->moves[board->movesCount].cordx][board->moves[board->movesCount].cordy] = 0;
-		board->board[board->moves[board->movesCount].cordx - 1][board->moves[board->movesCount].cordy - 1] = 0;
-		board->moves[board->movesCount].cordx = 0;
-		board->moves[board->movesCount].cordy = 0;
-		board->moves[board->movesCount].player = 0;
-		board->moves[board->movesCount - 1].cordx = 0;
-		board->moves[board->movesCount - 1].cordy = 0;
-		board->moves[board->movesCount - 1].player = 0;
+		board->board[board->moves[board->movesCount-1].cordx][board->moves[board->movesCount-1].cordy] = 0;
+		board->board[board->moves[board->movesCount-2].cordx ][board->moves[board->movesCount-2].cordy] = 0;
+		board->moves[board->movesCount-1].cordx = 0;
+		board->moves[board->movesCount-1].cordy = 0;
+		board->moves[board->movesCount-1].player = 0;
+		board->moves[board->movesCount - 2].cordx = 0;
+		board->moves[board->movesCount - 2].cordy = 0;
+		board->moves[board->movesCount - 2].player = 0;
 		board->movesCount -= 2;
 		return 0;
 	}
