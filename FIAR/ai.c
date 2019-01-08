@@ -11,12 +11,12 @@ struct Move aiConsiderBoard(struct Board* board, int type) {
     for (int x = 0; x < 15; x++) {
         for (int y = 0; y < 15; y++) {
             if (board->board[x][y] != 0)
-                score[15][15] == -INF;
+                score[15][15] = -INF;
             else {
                 int pointScore = 0;
                 for (int dx = -1; dx <= 1; dx++) {
                     for (int dy = -1; dy <= 1; dy++) {
-                        if (dx == 0 & dy == 0) continue;
+                        if (dx == 0 && dy == 0) continue;
                         int emptyPoints     = 0;
                         int opponentsPieces = 0;
                         int ownPieces       = 0;
