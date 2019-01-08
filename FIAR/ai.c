@@ -11,39 +11,37 @@ struct Move aiConsiderBoard(struct Board* board, int type) {
     for (int x = 0; x < 15; x++) {
         for (int y = 0; y < 15; y++) {
             if (board->board[x][y] != 0)
-                score[15][15] == -INF;
+                score[x][y] = -INF;
             else {
                 int pointScore = 0;
                 for (int dx = -1; dx <= 1; dx++) {
                     for (int dy = -1; dy <= 1; dy++) {
-                        if (dx == 0 & dy == 0) continue;
+                        if (dx == 0 && dy == 0) continue;
                         int emptyPoints     = 0;
                         int opponentsPieces = 0;
                         int ownPieces       = 0;
                         for (int dis = 1; dis <= 4; dis++) {
-                            if (x + dx * dis < 0 || x + dx * dis > 14 || y + dx * dis < 0 || y + dx * dis > 14) break;
+                            if (x + dx * dis < 0 || x + dx * dis > 14 || y + dy * dis < 0 || y + dy * dis > 14) break;
                             int px = x + dx * dis;
-                            int py = y + dx * dis;
+                            int py = y + dy * dis;
                             if (board->board[px][py] == 0) {
                                 emptyPoints++;
                                 break;
                             }
                             if (board->board[px][py] == player) {
                                 ownPieces++;
-                                break;
                             }
                         }
                         for (int dis = -1; dis >= -4; dis--) {
-                            if (x + dx * dis < 0 || x + dx * dis > 14 || y + dx * dis < 0 || y + dx * dis > 14) break;
+                            if (x + dx * dis < 0 || x + dx * dis > 14 || y + dy * dis < 0 || y + dy * dis > 14) break;
                             int px = x + dx * dis;
-                            int py = y + dx * dis;
+                            int py = y + dy * dis;
                             if (board->board[px][py] == 0) {
                                 emptyPoints++;
                                 break;
                             }
                             if (board->board[px][py] == player) {
                                 ownPieces++;
-                                break;
                             }
                         }
                         switch (ownPieces) {
@@ -63,29 +61,27 @@ struct Move aiConsiderBoard(struct Board* board, int type) {
                         }
                         emptyPoints = 0;
                         for (int dis = 1; dis <= 4; dis++) {
-                            if (x + dx * dis < 0 || x + dx * dis > 14 || y + dx * dis < 0 || y + dx * dis > 14) break;
+                            if (x + dx * dis < 0 || x + dx * dis > 14 || y + dy * dis < 0 || y + dy * dis > 14) break;
                             int px = x + dx * dis;
-                            int py = y + dx * dis;
+                            int py = y + dy * dis;
                             if (board->board[px][py] == 0) {
                                 emptyPoints++;
                                 break;
                             }
                             if (board->board[px][py] != player) {
                                 opponentsPieces++;
-                                break;
                             }
                         }
                         for (int dis = -1; dis >= -4; dis--) {
-                            if (x + dx * dis < 0 || x + dx * dis > 14 || y + dx * dis < 0 || y + dx * dis > 14) break;
+                            if (x + dx * dis < 0 || x + dx * dis > 14 || y + dy * dis < 0 || y + dy * dis > 14) break;
                             int px = x + dx * dis;
-                            int py = y + dx * dis;
+                            int py = y + dy * dis;
                             if (board->board[px][py] == 0) {
                                 emptyPoints++;
                                 break;
                             }
                             if (board->board[px][py] != player) {
                                 opponentsPieces++;
-                                break;
                             }
                         }
                         switch (opponentsPieces) {
@@ -116,6 +112,7 @@ struct Move aiConsiderBoard(struct Board* board, int type) {
         }
     }
     if (type == 1) { // Require the complete score matrix
+        putchar('\n');
         for (int x = 0; x < 14; x++) {
             for (int y = 0; y < 14; y++) {
                 printf("%8d",score[x][y]);
