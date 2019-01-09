@@ -1,12 +1,12 @@
 #pragma once
 #include "board.h"
-#include "menu.h"
 #include <conio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ai.h"
 #include <windows.h>
+#include "ai.h"
+#include "menu.h"
 // Class for game board
 
 struct Board* newBoard() {
@@ -59,7 +59,7 @@ int saveReplayBoard(struct Board* board) {
         code[index * 2]             = encodedMove.fst;
         code[index * 2 + 1]         = encodedMove.snd;
     }
-    printf("%s\n", code);
+    printf("\n%s\n", code);
     return 0;
 }
 
@@ -141,7 +141,7 @@ int startGameBoard(struct Board* board, int type) {
                             break;
                         case 114: aiConsiderBoard(board, 1); break;
                         case 117: undoBoard(board); break; // u
-                        case 122: return 0; // z
+                        case 122: return 0;                // z
                         default: displayBoard(board, 0);
                     }
                     break;
@@ -166,30 +166,26 @@ int clearBoard(struct Board* board) {
     return 0;
 }
 int undoBoard(struct Board* board) {
-	if (board->movesCount == 0) {
-		return 1;
-	}
-	else if (board->movesCount == 1) {
-		board->board[board->moves[board->movesCount-1].cordx][board->moves[board->movesCount-1].cordy] = 0;
-		board->moves[board->movesCount-1].cordx = 0;
-		board->moves[board->movesCount-1].cordy = 0;
-		board->moves[board->movesCount-1].player = 0;
-		board->currentPlayer = 1;
-		board->movesCount = 0;
-		return 0;
-	}
-	else {
-		board->board[board->moves[board->movesCount-1].cordx][board->moves[board->movesCount-1].cordy] = 0;
-		board->board[board->moves[board->movesCount-2].cordx ][board->moves[board->movesCount-2].cordy] = 0;
-		board->moves[board->movesCount-1].cordx = 0;
-		board->moves[board->movesCount-1].cordy = 0;
-		board->moves[board->movesCount-1].player = 0;
-		board->moves[board->movesCount - 2].cordx = 0;
-		board->moves[board->movesCount - 2].cordy = 0;
-		board->moves[board->movesCount - 2].player = 0;
-		board->movesCount -= 2;
-		return 0;
-	}
+    if (board->movesCount == 0) {
+    } else if (board->movesCount == 1) {
+        board->board[board->moves[board->movesCount - 1].cordx][board->moves[board->movesCount - 1].cordy] = 0;
+        board->moves[board->movesCount - 1].cordx                                                          = 0;
+        board->moves[board->movesCount - 1].cordy                                                          = 0;
+        board->moves[board->movesCount - 1].player                                                         = 0;
+        board->currentPlayer                                                                               = 1;
+        board->movesCount                                                                                  = 0;
+    } else {
+        board->board[board->moves[board->movesCount - 1].cordx][board->moves[board->movesCount - 1].cordy] = 0;
+        board->board[board->moves[board->movesCount - 2].cordx][board->moves[board->movesCount - 2].cordy] = 0;
+        board->moves[board->movesCount - 1].cordx                                                          = 0;
+        board->moves[board->movesCount - 1].cordy                                                          = 0;
+        board->moves[board->movesCount - 1].player                                                         = 0;
+        board->moves[board->movesCount - 2].cordx                                                          = 0;
+        board->moves[board->movesCount - 2].cordy                                                          = 0;
+        board->moves[board->movesCount - 2].player                                                         = 0;
+        board->movesCount -= 2;
+    }
+    displayBoard(board, 1);
 }
 
 int displayBoard(struct Board* board, int type) {
@@ -222,7 +218,7 @@ int displayBoard(struct Board* board, int type) {
             if (board->board[j][k] != 0) { initialboard[j][k] = board->board[j][k] + 9; }
         }
     }
-    if(type == 0) initialboard[board->currentCordX][board->currentCordY] = POS;
+    if (type == 0) initialboard[board->currentCordX][board->currentCordY] = POS;
 
     printf("\n");                         /// BUG 2 boards   no"reset"
     for (int k = 0; k < DIMENSION; k++) { /// columns
@@ -332,7 +328,7 @@ int checkStatusBoard(struct Board* board) {
             break; //向左下检查
     }
     if (z >= 5) return -board->currentPlayer;
-    //printf("%d %d %d %d\n", w, x, y, z);
+    // printf("%d %d %d %d\n", w, x, y, z);
     return 1 + (board->currentPlayer & 1);
 }
 int saveBoard(struct Board* board) {}
