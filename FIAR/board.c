@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "board.h"
 #include <conio.h>
 #include <stdio.h>
@@ -237,17 +237,24 @@ int displayBoard(struct Board* board, int type) {
                 case 9: printf(""); break;
                 case 10: printf("○"); break;
                 case 11: printf("●"); break;
-                case 12: printf("¤"); break;
+				case 12: if (board->currentPlayer == 1) { printf("①"); } else{ printf("②"); }  break;
             }
         }
         putchar('\n');
     }
     if (board->currentPlayer == 1)
-        printf("  player 1 turn\n");
+        printf("    Player 1 turn\n");
     else if (board->currentPlayer == 2)
-        printf("    player 2 turn\n");
+        printf("    Player 2 turn\n");
     printf("    POSITION(%d,%d)\n", board->currentCordX, board->currentCordY);
-    return 0;
+	printf("\n");
+	printf("     \033[31;35m\":z\"  :Return to menu\n\033[0m\ ");
+	printf("    \033[31;35m\":u\"  :Retract a false move\n\033[0m\ ");
+	printf("    \033[31;35m\":q\"  :Save the current game\n\033[0m\ ");
+	printf("    \033[31;35m\":a\"  :Save the replay\n\033[0m\ ");
+	printf("    \033[31;35m\":s\"  :Play the replay video of the game\n\033[0m\ ");
+	printf("    \033[31;35m\":w\"  :Load saved games\n\033[0m\ ");
+    return 0; 
 }
 
 int checkStatusBoard(struct Board* board) {
