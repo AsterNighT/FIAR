@@ -36,6 +36,12 @@
     <None Include="docs\doc.md">
       <Filter>Docs</Filter>
     </None>
+    <None Include="docs\projectReport.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\wiki.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="board.h">
