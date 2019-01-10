@@ -262,12 +262,12 @@ int displayBoard(struct Board* board, int type) {
         printf("    Player 2 turn\n");
     printf("    POSITION(%d,%d)\n", board->currentCordX, board->currentCordY);
     printf("\n");
-    printf("     \033[31;35m\":z\"  :Return to menu\n\033[0m\ ");
-    printf("    \033[31;35m\":u\"  :Retract a false move\n\033[0m\ ");
-    printf("    \033[31;35m\":q\"  :Save the current game\n\033[0m\ ");
-    printf("    \033[31;35m\":a\"  :Save the replay\n\033[0m\ ");
-    printf("    \033[31;35m\":s\"  :Play the replay video of the game\n\033[0m\ ");
-    printf("    \033[31;35m\":w\"  :Load saved games\n\033[0m\ ");
+    printf("     \033[31;35m\":z\"  :Return to menu\n\033[0m");
+    printf("    \033[31;35m\":u\"  :Retract a false move\n\033[0m");
+    printf("    \033[31;35m\":q\"  :Save the current game\n\033[0m");
+    printf("    \033[31;35m\":a\"  :Save the replay\n\033[0m");
+    printf("    \033[31;35m\":s\"  :Play the replay video of the game\n\033[0m");
+    printf("    \033[31;35m\":w\"  :Load saved games\n\033[0m");
     fflush(stdout);
     return 0;
 }
