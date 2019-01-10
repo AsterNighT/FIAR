@@ -9,7 +9,7 @@ int displayDeveloperInfo() {
     FIAR, a simple demo of the game of five-in-a-row.\n\
     Developed with standard C, maybe it'll be our first and last project written in standard C.\n\
     Project leader: \033[47;35mAsterNighT\033[0m\n\
-    Collaborator: \n\
+    Collaborator: \033[47;35mEdwin-Yu\033[0m\n\   \033[47;35mJusterizon\033[0m\n\   \033[47;35mzbq0313\033[0m\n\
     Released under GNU GPL 2.0. Do feel free to share or modify it. \n\
     Press any key to return to menu.\n\
     -------------------------------------------------------------------\n\
