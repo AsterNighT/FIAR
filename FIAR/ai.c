@@ -1,6 +1,6 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include "ai.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include "board.h"
 struct Move aiConsiderBoard(struct Board* board, int type) {
     int         player = board->currentPlayer;
@@ -28,9 +28,7 @@ struct Move aiConsiderBoard(struct Board* board, int type) {
                                 emptyPoints++;
                                 break;
                             }
-                            if (board->board[px][py] == player) {
-                                ownPieces++;
-                            }
+                            if (board->board[px][py] == player) { ownPieces++; }
                         }
                         for (int dis = -1; dis >= -4; dis--) {
                             if (x + dx * dis < 0 || x + dx * dis > 14 || y + dy * dis < 0 || y + dy * dis > 14) break;
@@ -40,9 +38,7 @@ struct Move aiConsiderBoard(struct Board* board, int type) {
                                 emptyPoints++;
                                 break;
                             }
-                            if (board->board[px][py] == player) {
-                                ownPieces++;
-                            }
+                            if (board->board[px][py] == player) { ownPieces++; }
                         }
                         switch (ownPieces) {
                             case 0: pointScore += 1; break;
@@ -68,9 +64,7 @@ struct Move aiConsiderBoard(struct Board* board, int type) {
                                 emptyPoints++;
                                 break;
                             }
-                            if (board->board[px][py] != player) {
-                                opponentsPieces++;
-                            }
+                            if (board->board[px][py] != player) { opponentsPieces++; }
                         }
                         for (int dis = -1; dis >= -4; dis--) {
                             if (x + dx * dis < 0 || x + dx * dis > 14 || y + dy * dis < 0 || y + dy * dis > 14) break;
@@ -80,9 +74,7 @@ struct Move aiConsiderBoard(struct Board* board, int type) {
                                 emptyPoints++;
                                 break;
                             }
-                            if (board->board[px][py] != player) {
-                                opponentsPieces++;
-                            }
+                            if (board->board[px][py] != player) { opponentsPieces++; }
                         }
                         switch (opponentsPieces) {
                             case 0: pointScore += 1; break;
@@ -114,9 +106,7 @@ struct Move aiConsiderBoard(struct Board* board, int type) {
     if (type == 1) { // Require the complete score matrix
         putchar('\n');
         for (int x = 0; x < 14; x++) {
-            for (int y = 0; y < 14; y++) {
-                printf("%8d",score[x][y]);
-            }
+            for (int y = 0; y < 14; y++) { printf("%8d", score[x][y]); }
             putchar('\n');
         }
         fflush(stdout);

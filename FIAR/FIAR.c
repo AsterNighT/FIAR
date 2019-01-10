@@ -1,14 +1,14 @@
 // Main Program
 #pragma once
+#include <stdio.h>
 #include "board.h"
 #include "menu.h"
-#include <stdio.h>
 int main() {
     setvbuf(stdout, NULL, _IOFBF, 4096);
     struct Board* gameBoard = newBoard();
     char          data[512];
     while (1) {
-		clearBoard(gameBoard);
+        clearBoard(gameBoard);
         int index, ret = 0;
         index = displayMainMenu();
         switch (index) {
