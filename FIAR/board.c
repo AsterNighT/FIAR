@@ -80,6 +80,7 @@ int playReplayBoard(struct Board* board, char* replayData) {
 int startGameBoard(struct Board* board, int type) {
     char data[512];
     int  aiPlayer = 0;
+    board->type   = type;
     if (type == 0) {
         printf("Are you going first?(y/n)");
         fflush(stdout);
@@ -87,7 +88,6 @@ int startGameBoard(struct Board* board, int type) {
         while (op != 'y' && op != 'n') op = _getch();
         aiPlayer = 1 + (op == 'y');
     }
-    clearBoard(board);
     displayBoard(board, 0);
     while (1) {
         if (board->currentPlayer == aiPlayer && (board->gameStatus == 1 || board->gameStatus == 2)) {
@@ -133,7 +133,7 @@ int startGameBoard(struct Board* board, int type) {
                     displayBoard(board, 0);
                     break;
                 case 58: // :
-                    printf("Waiting for the second key...");
+                    printf("Waiting for the second key...\n");
                     fflush(stdout);
                     op = _getch();
                     switch (op) {
@@ -262,7 +262,7 @@ int displayBoard(struct Board* board, int type) {
         printf("    Player 2 turn\n");
     printf("    POSITION(%d,%d)\n", board->currentCordX, board->currentCordY);
     printf("\n");
-    printf("     \033[31;35m\":z\"  :Return to menu\n\033[0m");
+    printf("    \033[31;35m\":z\"  :Return to menu\n\033[0m");
     printf("    \033[31;35m\":u\"  :Retract a false move\n\033[0m");
     printf("    \033[31;35m\":q\"  :Save the current game\n\033[0m");
     printf("    \033[31;35m\":a\"  :Save the replay\n\033[0m");
@@ -353,5 +353,35 @@ int checkStatusBoard(struct Board* board) {
     // printf("%d %d %d %d\n", w, x, y, z);
     return 1 + (board->currentPlayer & 1);
 }
-int saveBoard(struct Board* board) {}
-int loadBoard(struct Board* board, char* saveData) {}
+
+int saveBoard(struct Board* board) {
+    int  i = 0, j = 0, m = 15, k = 0, data[500], n;
+    char saveData[500];
+    for (i = 0; i < m; i++) {
+        for (j = 0; j < m; j++) { saveData[k++] = board->board[i][j] + '0'; }
+    }
+    saveData[225] = board->type + '0';
+    saveData[226] = '\0';
+    printf("\n%s\n", saveData);
+    fflush(stdout);
+    return 0;
+}
+int loadBoard(struct Board* board, char* saveData) {
+    int i = 0, j = 0, m = 15, k = 0, a = 0, b = 0, n, c;
+    for (i = 0; i < m; i++) {
+        for (j = 0; j < m; j++) board->board[i][j] = saveData[k++] - '0';
+    }
+    for (n = 0; n < 225; n++) {
+        if (saveData[n] == 1)
+            a++;
+        else if (saveData[n] == 2)
+            b++;
+    }
+    if (a == b)
+        board->gameStatus = board->currentPlayer = 1;
+    else
+        board->gameStatus = board->currentPlayer = 2;
+    board->type = saveData[225] - '0';
+    displayBoard(board, 1);
+    return 0;
+}
