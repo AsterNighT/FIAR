@@ -51,8 +51,7 @@ int displayMainMenu() {
     ");
     fflush(stdout);
     int c = 0;
-    while (!isdigit(c = _getch()))
-        ;
+    while (!isdigit(c = _getch()));
     return c - '0';
 }
 int displaySettingMenu() {}
