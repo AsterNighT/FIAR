@@ -166,7 +166,8 @@ int clearBoard(struct Board* board) {
         board->moves[i].cordy                                      = 0;
         board->moves[i].player                                     = 0;
     }
-    board->currentPlayer = 1;
+	memset(board->board, 0, sizeof(board->board));
+	board->currentPlayer = 1;
     board->gameStatus    = 1;
     board->movesCount    = 0;
     board->currentCordY  = 0;
