@@ -119,6 +119,7 @@ struct Move aiConsiderBoard(struct Board* board, int type) {
             }
             putchar('\n');
         }
+        fflush(stdout);
     }
     return ret;
 }

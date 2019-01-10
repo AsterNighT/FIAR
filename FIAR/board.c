@@ -60,6 +60,7 @@ int saveReplayBoard(struct Board* board) {
         code[index * 2 + 1]         = encodedMove.snd;
     }
     printf("\n%s\n", code);
+    fflush(stdout);
     return 0;
 }
 
@@ -81,6 +82,7 @@ int startGameBoard(struct Board* board, int type) {
     int  aiPlayer = 0;
     if (type == 0) {
         printf("Are you going first?(y/n)");
+        fflush(stdout);
         int op = 0;
         while (op != 'y' && op != 'n') op = _getch();
         aiPlayer = 1 + (op == 'y');
@@ -94,6 +96,7 @@ int startGameBoard(struct Board* board, int type) {
             int         status = placePieceBoard(board, move.cordx, move.cordy);
             if (status < 0) printf("Player %d wins!\n", -status);
             if (status == 3) printf("It's a draw.");
+            fflush(stdout);
         } else {
             int op = _getch();
             switch (op) {
@@ -109,6 +112,7 @@ int startGameBoard(struct Board* board, int type) {
                         displayBoard(board, 1);
                         printf("The Game has ended.\n");
                     }
+                    fflush(stdout);
                     break;
                 case 224: // arrows id
                     op = _getch();
@@ -130,6 +134,7 @@ int startGameBoard(struct Board* board, int type) {
                     break;
                 case 58: // :
                     printf("Waiting for the second key...");
+                    fflush(stdout);
                     op = _getch();
                     switch (op) {
                         case 113: saveBoard(board); break; // q
@@ -263,6 +268,7 @@ int displayBoard(struct Board* board, int type) {
     printf("    \033[31;35m\":a\"  :Save the replay\n\033[0m\ ");
     printf("    \033[31;35m\":s\"  :Play the replay video of the game\n\033[0m\ ");
     printf("    \033[31;35m\":w\"  :Load saved games\n\033[0m\ ");
+    fflush(stdout);
     return 0;
 }
 
