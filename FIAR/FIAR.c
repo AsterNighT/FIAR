@@ -8,6 +8,7 @@ int main() {
     struct Board* gameBoard = newBoard();
     char          data[512];
     while (1) {
+		clearBoard(gameBoard);
         int index, ret = 0;
         index = displayMainMenu();
         switch (index) {
