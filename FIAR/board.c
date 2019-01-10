@@ -1,308 +1,357 @@
-#pragma once
+ï»¿#pragma once
 #include "board.h"
 #include <conio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <windows.h>
 #include "ai.h"
+#include "menu.h"
 // Class for game board
 
 struct Board* newBoard() {
-	struct Board* board = malloc(sizeof(struct Board));
-	memset(board->board, 0, sizeof(board->board));
-	board->currentPlayer = 1;
-	board->gameStatus = 1;
-	board->movesCount = 0;
-	board->currentCordY = 0;
-	board->currentCordX = 0;
-	return board;
+    struct Board* board = malloc(sizeof(struct Board));
+    memset(board->board, 0, sizeof(board->board));
+    board->currentPlayer = 1;
+    board->gameStatus    = 1;
+    board->movesCount    = 0;
+    board->currentCordY  = 0;
+    board->currentCordX  = 0;
+    return board;
 }
 
 int placePieceBoard(struct Board* board, int cordx, int cordy) {
-	if (board->board[cordx][cordy] != 0) return 0;
-	board->board[cordx][cordy] = board->currentPlayer;
-	board->moves[board->movesCount].cordx = cordx;
-	board->moves[board->movesCount].cordy = cordy;
-	board->moves[board->movesCount].player = board->currentPlayer;
-	board->movesCount++;
-	board->currentPlayer = 1 + board->currentPlayer & 1;
-	board->gameStatus = checkStatusBoard(board);
-	return board->gameStatus;
+    if (board->board[cordx][cordy] != 0) return 0;
+    board->board[cordx][cordy]             = board->currentPlayer;
+    board->moves[board->movesCount].cordx  = cordx;
+    board->moves[board->movesCount].cordy  = cordy;
+    board->moves[board->movesCount].player = board->currentPlayer;
+    board->movesCount++;
+    board->gameStatus    = checkStatusBoard(board);
+    board->currentPlayer = 1 + (board->currentPlayer & 1);
+    displayBoard(board, 1);
+    return board->gameStatus;
 }
 
 struct CharPair encodeMove(struct Move move) {
-	struct CharPair ret;
-	int             value = (move.cordx * 16 + move.cordy) + (move.player - 1) * 300;
-	ret.fst = 'a' + value / 26;
-	ret.snd = 'a' + value % 26;
-	return ret;
+    struct CharPair ret;
+    int             value = (move.cordx * 16 + move.cordy) + (move.player - 1) * 300;
+    ret.fst               = 'a' + value / 26;
+    ret.snd               = 'a' + value % 26;
+    return ret;
 }
 
 struct Move decodeMove(struct CharPair code) {
-	struct Move ret;
-	int         value = (code.fst - 'a') * 26 + (code.snd - 'a');
-	ret.player = value / 300 + 1;
-	ret.cordx = (value % 300) / 16;
-	ret.cordy = (value % 300) % 16;
-	return ret;
+    struct Move ret;
+    int         value = (code.fst - 'a') * 26 + (code.snd - 'a');
+    ret.player        = value / 300 + 1;
+    ret.cordx         = (value % 300) / 16;
+    ret.cordy         = (value % 300) % 16;
+    return ret;
 }
 
 // Remember to free the memory afterwards!!!!!!!!!
 int saveReplayBoard(struct Board* board) {
-	char code[512];
-	memset(code, 0, sizeof(code));
-	for (int index = 0; index < board->movesCount; index++) {
-		struct CharPair encodedMove = encodeMove(board->moves[index]);
-		code[index * 2] = encodedMove.fst;
-		code[index * 2 + 1] = encodedMove.snd;
-	}
-	printf("%s\n", code);
-	return 0;
+    char code[512];
+    memset(code, 0, sizeof(code));
+    for (int index = 0; index < board->movesCount; index++) {
+        struct CharPair encodedMove = encodeMove(board->moves[index]);
+        code[index * 2]             = encodedMove.fst;
+        code[index * 2 + 1]         = encodedMove.snd;
+    }
+    printf("\n%s\n", code);
+    fflush(stdout);
+    return 0;
 }
 
 int playReplayBoard(struct Board* board, char* replayData) {
-	clearBoard(board);
-	int length = strlen(replayData);
-	for (int index = 0; index < length; index += 2) {
-		struct CharPair code = { replayData[index], replayData[index + 1] };
-		struct Move     moveTemp = decodeMove(code);
-		int             ret = placePieceBoard(board, moveTemp.cordx, moveTemp.cordy);
-		if (ret != 1 && ret != 2) return 1;
-		displayBoard(board);
-	}
-	return 0;
+    clearBoard(board);
+    int length = strlen(replayData);
+    for (int index = 0; index < length; index += 2) {
+        struct CharPair code     = {replayData[index], replayData[index + 1]};
+        struct Move     moveTemp = decodeMove(code);
+        int             ret      = placePieceBoard(board, moveTemp.cordx, moveTemp.cordy);
+        if (ret != 1 && ret != 2) return 1;
+        Sleep(1000);
+        displayBoard(board, 1);
+    }
+    return 0;
 }
 int startGameBoard(struct Board* board, int type) {
-	displayBoard(board);
-	char data[512];
-	int  aiPlayer = 0;
-	if (type == 0) {
-		printf("Are you going first?(y/n)");
-		int op = 0;
-		while (op != 'y' && op != 'n') op = _getch();
-		aiPlayer = 1 + (op == 'y');
-	}
-	while (1) {
-		if (board->currentPlayer == aiPlayer && (board->gameStatus == 1 || board->gameStatus == 2)) {
-			struct Move move = aiConsiderBoard(board, 0);
-			placePieceBoard(board, move.cordx, move.cordy);
-		}
-		else {
-			int op = _getch();
-			switch (op) {
-			case 13: // enter
-				if (board->gameStatus == 1 || board->gameStatus == 2) {
-					int status = placePieceBoard(board, board->currentCordX, board->currentCordY);
-					displayBoard(board);
-					if (status == 0) printf("Invalid Move.\n");
-					if (status < 0) printf("Player %d wins!\n", status - 1);
-					if (status == 3) printf("It's a draw.");
-					if (status == 1 || status == 2) printf("Next move: Player %d\n", status);
-				}
-				else {
-					displayBoard(board);
-					printf("The Game has ended.\n");
-				}
-				break;
-			case 224: // arrows id
-				op = _getch();
-				switch (op) {
-				case 75:
-					board->currentCordX = board->currentCordX > 0 ? board->currentCordX - 1 : 0; // left
-					break;
-				case 72: // up
-					board->currentCordY = board->currentCordY > 0 ? board->currentCordY - 1 : 0;
-					break;
-				case 80: // down
-					board->currentCordY = board->currentCordY < 14 ? board->currentCordY + 1 : 14;
-					break;
-				case 77: // right
-					board->currentCordX = board->currentCordX < 14 ? board->currentCordX + 1 : 14;
-					break;
-				}
-				displayBoard(board);
-				break;
-			case 58: // :
-				printf("Waiting for the second key...");
-				op = _getch();
-				switch (op) {
-				case 113: saveBoard(board); break; // q
-				case 119:                          // w
-					scanf_s("%s", data, 512);
-					loadBoard(board, data);
-					break;
-				case 97: saveReplayBoard(board); break; // a
-				case 115:                               // s
-					scanf_s("%s", data, 512);
-					playReplayBoard(board, data);
-					break;
-				case 114: aiConsiderBoard(board, 1); break;
-				case 117: undoBoard(board); break;//u
-				default: displayBoard(board);
-				}
-				break;
-			}
-		}
-	}
+    char data[512];
+    int  aiPlayer = 0;
+    if (type == 0) {
+        printf("Are you going first?(y/n)");
+        fflush(stdout);
+        int op = 0;
+        while (op != 'y' && op != 'n') op = _getch();
+        aiPlayer = 1 + (op == 'y');
+    }
+    clearBoard(board);
+    displayBoard(board, 0);
+    while (1) {
+        if (board->currentPlayer == aiPlayer && (board->gameStatus == 1 || board->gameStatus == 2)) {
+            Sleep(500);
+            struct Move move   = aiConsiderBoard(board, 0);
+            int         status = placePieceBoard(board, move.cordx, move.cordy);
+            if (status < 0) printf("Player %d wins!\n", -status);
+            if (status == 3) printf("It's a draw.");
+            fflush(stdout);
+        } else {
+            int op = _getch();
+            switch (op) {
+                case 13: // enter
+                    if (board->gameStatus == 1 || board->gameStatus == 2) {
+                        int status = placePieceBoard(board, board->currentCordX, board->currentCordY);
+                        displayBoard(board, 1);
+                        if (status == 0) printf("Invalid Move.\n");
+                        if (status < 0) printf("Player %d wins!\n", -status);
+                        if (status == 3) printf("It's a draw.");
+                        if (status == 1 || status == 2) printf("Next move: Player %d\n", status);
+                    } else {
+                        displayBoard(board, 1);
+                        printf("The Game has ended.\n");
+                    }
+                    fflush(stdout);
+                    break;
+                case 224: // arrows id
+                    op = _getch();
+                    switch (op) {
+                        case 75:
+                            board->currentCordX = board->currentCordX > 0 ? board->currentCordX - 1 : 0; // left
+                            break;
+                        case 72: // up
+                            board->currentCordY = board->currentCordY > 0 ? board->currentCordY - 1 : 0;
+                            break;
+                        case 80: // down
+                            board->currentCordY = board->currentCordY < 14 ? board->currentCordY + 1 : 14;
+                            break;
+                        case 77: // right
+                            board->currentCordX = board->currentCordX < 14 ? board->currentCordX + 1 : 14;
+                            break;
+                    }
+                    displayBoard(board, 0);
+                    break;
+                case 58: // :
+                    printf("Waiting for the second key...");
+                    fflush(stdout);
+                    op = _getch();
+                    switch (op) {
+                        case 113: saveBoard(board); break; // q
+                        case 119:                          // w
+                            scanf_s("%s", data, 512);
+                            loadBoard(board, data);
+                            break;
+                        case 97: saveReplayBoard(board); break; // a
+                        case 115:                               // s
+                            scanf_s("%s", data, 512);
+                            playReplayBoard(board, data);
+                            break;
+                        case 114: aiConsiderBoard(board, 1); break;
+                        case 117: undoBoard(board); break; // u
+                        case 122: return 0;                // z
+                        default: displayBoard(board, 0);
+                    }
+                    break;
+            }
+        }
+    }
 }
 
 int clearBoard(struct Board* board) {
-	int i;
-	for (i = 0; i <= board->movesCount; i++) {
-		board->board[board->moves[i].cordx][board->moves[i].cordy] = 0;
-		board->moves[i].cordx = 0;
-		board->moves[i].cordy = 0;
-		board->moves[i].player = 0;
-	}
-	board->currentPlayer = 1;
-	board->gameStatus = 1;
-	board->movesCount = 0;
-	board->currentCordY = 0;
-	board->currentCordX = 0;
-	return 1;
+    int i;
+    for (i = 0; i < board->movesCount; i++) {
+        board->board[board->moves[i].cordx][board->moves[i].cordy] = 0;
+        board->moves[i].cordx                                      = 0;
+        board->moves[i].cordy                                      = 0;
+        board->moves[i].player                                     = 0;
+    }
+    board->currentPlayer = 1;
+    board->gameStatus    = 1;
+    board->movesCount    = 0;
+    board->currentCordY  = 0;
+    board->currentCordX  = 0;
+    return 0;
 }
 int undoBoard(struct Board* board) {
-	if (board->movesCount == 0) {
-		return 1;
-	}
-	else if (board->movesCount == 1) {
-		board->board[board->moves[board->movesCount].cordx][board->moves[board->movesCount].cordy] = 0;
-		board->moves[board->movesCount].cordx = 0;
-		board->moves[board->movesCount].cordy = 0;
-		board->moves[board->movesCount].player = 0;
-		board->currentPlayer = 1;
-		board->movesCount = 0;
-		return 0;
-	}
-	else {
-		board->board[board->moves[board->movesCount].cordx][board->moves[board->movesCount].cordy] = 0;
-		board->board[board->moves[board->movesCount].cordx - 1][board->moves[board->movesCount].cordy - 1] = 0;
-		board->moves[board->movesCount].cordx = 0;
-		board->moves[board->movesCount].cordy = 0;
-		board->moves[board->movesCount].player = 0;
-		board->moves[board->movesCount - 1].cordx = 0;
-		board->moves[board->movesCount - 1].cordy = 0;
-		board->moves[board->movesCount - 1].player = 0;
-		board->movesCount -= 2;
-		return 0;
-	}
+    if (board->movesCount == 0) {
+    } else if (board->movesCount == 1) {
+        board->board[board->moves[board->movesCount - 1].cordx][board->moves[board->movesCount - 1].cordy] = 0;
+        board->moves[board->movesCount - 1].cordx                                                          = 0;
+        board->moves[board->movesCount - 1].cordy                                                          = 0;
+        board->moves[board->movesCount - 1].player                                                         = 0;
+        board->currentPlayer                                                                               = 1;
+        board->movesCount                                                                                  = 0;
+    } else {
+        board->board[board->moves[board->movesCount - 1].cordx][board->moves[board->movesCount - 1].cordy] = 0;
+        board->board[board->moves[board->movesCount - 2].cordx][board->moves[board->movesCount - 2].cordy] = 0;
+        board->moves[board->movesCount - 1].cordx                                                          = 0;
+        board->moves[board->movesCount - 1].cordy                                                          = 0;
+        board->moves[board->movesCount - 1].player                                                         = 0;
+        board->moves[board->movesCount - 2].cordx                                                          = 0;
+        board->moves[board->movesCount - 2].cordy                                                          = 0;
+        board->moves[board->movesCount - 2].player                                                         = 0;
+        board->movesCount -= 2;
+    }
+    displayBoard(board, 1);
 }
-int displayBoard(struct Board* board) {
-	const int LT = 0, TOP = 1, RT = 2;
-	const int LEFT = 3, CENTER = 4, RIGHT = 5;
-	const int LF = 6, FOOT = 7, RF = 8;
-	const int SPACE = 9;
-	const int DIMENSION = 15;
-	int initialboard[15][15];
-	for (int j = 0; j < DIMENSION; j++)
-		for (int k = 0; k < DIMENSION; k++)
-			initialboard[j][k] = SPACE;
 
-	initialboard[0][0] = LT; initialboard[0][DIMENSION - 1] = RT; initialboard[DIMENSION - 1][0] = LF; initialboard[DIMENSION - 1][DIMENSION - 1] = RF;
-	for (int i = 1; i < DIMENSION - 1; i += 1) {
-		initialboard[0][i] = TOP;
-		initialboard[DIMENSION - 1][i] = FOOT;
-		initialboard[i][0] = LEFT;
-		initialboard[i][DIMENSION - 1] = RIGHT;
-	}
-	for (int j = 1; j < DIMENSION - 1; j += 1)
-		for (int k = 1; k < DIMENSION - 1; k += 1) {
-			initialboard[j][k] = CENTER;
-		}
-	printf("\n");                                        /// BUG 2 boards   no"reset"
-	for (int j = 0; j < DIMENSION; j++) {               /// columns
-		for (int k = 0; k < DIMENSION; k++)
-			/// rows
-			switch (initialboard[j][k]) {
-			case 0:printf("©° "); break;
-			case 1:printf("©Ğ "); break;
-			case 2:printf("©´ "); break;
-			case 3:printf("©À "); break;
-			case 4:printf("©à "); break;
-			case 5:printf("©È "); break;
-			case 6:printf("©¸ "); break;
-			case 7:printf("©Ø "); break;
-			case 8:printf("©¼ "); break;
-			case 9:printf(""); break;
+int displayBoard(struct Board* board, int type) {
+    clear();
+    const int LT = 0, TOP = 1, RT = 2;
+    const int LEFT = 3, CENTER = 4, RIGHT = 5;
+    const int LF = 6, FOOT = 7, RF = 8;
+    const int SPACE = 9;
+    const int BLACK = 10, WHITE = 11, POS = 12;
+    const int DIMENSION = 15;
+    int       initialboard[15][15];
+    for (int k = 0; k < DIMENSION; k++)
+        for (int j = 0; j < DIMENSION; j++) initialboard[j][k] = SPACE;
 
+    initialboard[0][0]                         = LT;
+    initialboard[0][DIMENSION - 1]             = RT;
+    initialboard[DIMENSION - 1][0]             = LF;
+    initialboard[DIMENSION - 1][DIMENSION - 1] = RF;
+    for (int i = 1; i < DIMENSION - 1; i += 1) {
+        initialboard[0][i]             = TOP;
+        initialboard[DIMENSION - 1][i] = FOOT;
+        initialboard[i][0]             = LEFT;
+        initialboard[i][DIMENSION - 1] = RIGHT;
+    }
+    for (int j = 1; j < DIMENSION - 1; j += 1) {
+        for (int k = 1; k < DIMENSION - 1; k += 1) { initialboard[j][k] = CENTER; }
+    }
+    for (int j = 0; j < DIMENSION; j += 1) {
+        for (int k = 0; k < DIMENSION; k += 1) {
+            if (board->board[j][k] != 0) { initialboard[j][k] = board->board[j][k] + 9; }
+        }
+    }
+    if (type == 0) initialboard[board->currentCordX][board->currentCordY] = POS;
 
-			}
-		putchar('\n');
-	}
-	if (board->currentPlayer == 1) printf("  player 1 turn\n");
-	else if (board->currentPlayer == 2)   printf("    player 2 turn\n");
-	printf("    POSITION(%d,%d)\n", board->currentCordX, board->currentCordY);
+    printf("\n");                         /// BUG 2 boards   no"reset"
+    for (int k = 0; k < DIMENSION; k++) { /// columns
+        for (int l = 0; l < DIMENSION; l++) {
+            /// rows
+            switch (initialboard[l][k]) {
+                case 0: printf("â”Œ "); break;
+                case 1: printf("â”œ "); break;
+                case 2: printf("â”” "); break;
+                case 3: printf("â”¬ "); break;
+                case 4: printf("â”¼ "); break;
+                case 5: printf("â”´ "); break;
+                case 6: printf("â” "); break;
+                case 7: printf("â”¤ "); break;
+                case 8: printf("â”˜ "); break;
+                case 9: printf(""); break;
+                case 10: printf("â—‹"); break;
+                case 11: printf("â—"); break;
+                case 12:
+                    if (board->currentPlayer == 1) {
+                        printf("â‘ ");
+                    } else {
+                        printf("â‘¡");
+                    }
+                    break;
+            }
+        }
+        putchar('\n');
+    }
+    if (board->currentPlayer == 1)
+        printf("    Player 1 turn\n");
+    else if (board->currentPlayer == 2)
+        printf("    Player 2 turn\n");
+    printf("    POSITION(%d,%d)\n", board->currentCordX, board->currentCordY);
+    printf("\n");
+    printf("     \033[31;35m\":z\"  :Return to menu\n\033[0m");
+    printf("    \033[31;35m\":u\"  :Retract a false move\n\033[0m");
+    printf("    \033[31;35m\":q\"  :Save the current game\n\033[0m");
+    printf("    \033[31;35m\":a\"  :Save the replay\n\033[0m");
+    printf("    \033[31;35m\":s\"  :Play the replay video of the game\n\033[0m");
+    printf("    \033[31;35m\":w\"  :Load saved games\n\033[0m");
+    fflush(stdout);
+    return 0;
 }
+
 int checkStatusBoard(struct Board* board) {
-	const int DIMENSION = 15;
-	if (board->movesCount == 225)return 3;
-	int w = 1, x = 1, y = 1, z = 1, i;//ÀÛ¼ÆËÄ¸ö·½ÏòµÄÁ¬ĞøÏàÍ¬Æå×ÓÊıÄ¿
-	for (i = 1; i < 5; i++) {
-		if (board->moves[board->movesCount].cordy + i < DIMENSION&&board->board[board->moves[board->movesCount].cordx][board->moves[board->movesCount].cordy + i] == board->currentPlayer)w++;
-		else break;//ÏòÏÂ¼ì²é
-	}
-	for (i = 1; i < 5; i++) {
-		if (board->moves[board->movesCount].cordy - i > 0 && board->board[board->moves[board->movesCount].cordx][board->moves[board->movesCount].cordy - i] == board->currentPlayer)w++;
-		else break;//ÏòÉÏ¼ì²é
-	}
-	if (w >= 5)return -board->currentPlayer;//Èô¹û´ïµ½5¸öÔòÅĞ¶Ïµ±Ç°×ß×ÓÍæ¼ÒÎªÓ®¼Ò
+    const int DIMENSION = 15;
+    if (board->movesCount == 225) return 3;
+    int w = 1, x = 1, y = 1, z = 1, i; //ç´¯è®¡å››ä¸ªæ–¹å‘çš„è¿ç»­ç›¸åŒæ£‹å­æ•°ç›®
+    for (i = 1; i < 5; i++) {
+        if (board->moves[board->movesCount - 1].cordy + i < DIMENSION &&
+            board->board[board->moves[board->movesCount - 1].cordx][board->moves[board->movesCount - 1].cordy + i] ==
+                board->currentPlayer)
+            w++;
+        else
+            break; //å‘ä¸‹æ£€æŸ¥
+    }
+    for (i = 1; i < 5; i++) {
+        if (board->moves[board->movesCount - 1].cordy - i >= 0 &&
+            board->board[board->moves[board->movesCount - 1].cordx][board->moves[board->movesCount - 1].cordy - i] ==
+                board->currentPlayer)
+            w++;
+        else
+            break; //å‘ä¸Šæ£€æŸ¥
+    }
+    if (w >= 5) return -board->currentPlayer; //è‹¥æœè¾¾åˆ°5ä¸ªåˆ™åˆ¤æ–­å½“å‰èµ°å­ç©å®¶ä¸ºèµ¢å®¶
 
-	for (i = 1; i < 5; i++) {
-		if (board->moves[board->movesCount].cordx + i < DIMENSION&&board->board[board->moves[board->movesCount].cordx + i][board->moves[board->movesCount].cordy] == board->currentPlayer)x++;
-		else break;//ÏòÓÒ¼ì²é
-	}
-	for (i = 1; i < 5; i++) {
-		if (board->moves[board->movesCount].cordx - i > 0 && board->board[board->moves[board->movesCount].cordx - i][board->moves[board->movesCount].cordy] == board->currentPlayer)x++;
-		else break;//Ïò×ó¼ì²é
-	}
-	if (x >= 5)return -board->currentPlayer;//Èô¹û´ïµ½5¸öÔòÅĞ¶Ïµ±Ç°×ß×ÓÍæ¼ÒÎªÓ®¼Ò
+    for (i = 1; i < 5; i++) {
+        if (board->moves[board->movesCount - 1].cordx + i < DIMENSION &&
+            board->board[board->moves[board->movesCount - 1].cordx + i][board->moves[board->movesCount - 1].cordy] ==
+                board->currentPlayer)
+            x++;
+        else
+            break; //å‘å³æ£€æŸ¥
+    }
+    for (i = 1; i < 5; i++) {
+        if (board->moves[board->movesCount - 1].cordx - i >= 0 &&
+            board->board[board->moves[board->movesCount - 1].cordx - i][board->moves[board->movesCount - 1].cordy] ==
+                board->currentPlayer)
+            x++;
+        else
+            break; //å‘å·¦æ£€æŸ¥
+    }
+    if (x >= 5) return -board->currentPlayer; //è‹¥æœè¾¾åˆ°5ä¸ªåˆ™åˆ¤æ–­å½“å‰èµ°å­ç©å®¶ä¸ºèµ¢å®¶
 
-	for (i = 1; i < 5; i++) {
-		if (board->moves[board->movesCount].cordx + i < DIMENSION&&board->moves[board->movesCount].cordy + i < DIMENSION&&board->board[board->moves[board->movesCount].cordx + i][board->moves[board->movesCount].cordy + i] == board->currentPlayer)y++;
-		else break;//ÏòÓÒÏÂ¼ì²é
-	}
-	for (i = 1; i < 5; i++) {
-		if (board->moves[board->movesCount].cordx - i > 0 && board->moves[board->movesCount].cordy - i > 0 && board->board[board->moves[board->movesCount].cordx - i][board->moves[board->movesCount].cordy - i] == board->currentPlayer)y++;
-		else break;//Ïò×óÉÏ¼ì²é
-	}
-	if (y >= 5)return -board->currentPlayer;//Èô¹û´ïµ½5¸öÔòÅĞ¶Ïµ±Ç°×ß×ÓÍæ¼ÒÎªÓ®¼Ò
+    for (i = 1; i < 5; i++) {
+        if (board->moves[board->movesCount - 1].cordx + i < DIMENSION &&
+            board->moves[board->movesCount - 1].cordy + i < DIMENSION &&
+            board->board[board->moves[board->movesCount - 1].cordx + i]
+                        [board->moves[board->movesCount - 1].cordy + i] == board->currentPlayer)
+            y++;
+        else
+            break; //å‘å³ä¸‹æ£€æŸ¥
+    }
+    for (i = 1; i < 5; i++) {
+        if (board->moves[board->movesCount - 1].cordx - i >= 0 && board->moves[board->movesCount - 1].cordy - i >= 0 &&
+            board->board[board->moves[board->movesCount - 1].cordx - i]
+                        [board->moves[board->movesCount - 1].cordy - i] == board->currentPlayer)
+            y++;
+        else
+            break; //å‘å·¦ä¸Šæ£€æŸ¥
+    }
+    if (y >= 5) return -board->currentPlayer; //è‹¥æœè¾¾åˆ°5ä¸ªåˆ™åˆ¤æ–­å½“å‰èµ°å­ç©å®¶ä¸ºèµ¢å®¶
 
-	for (i = 1; i < 5; i++) {
-		if (board->moves[board->movesCount].cordx + i < DIMENSION&&board->moves[board->movesCount].cordy - i>0 && board->board[board->moves[board->movesCount].cordx + i][board->moves[board->movesCount].cordy - i] == board->currentPlayer)z++;
-		else break;//ÏòÓÒÉÏ¼ì²é
-	}
-	for (i = 1; i < 5; i++) {
-		if (board->moves[board->movesCount].cordx - i > 0 && board->moves[board->movesCount].cordy + i < DIMENSION&&board->board[board->moves[board->movesCount].cordx - i][board->moves[board->movesCount].cordy + i] == board->currentPlayer)z++;
-		else break;//Ïò×óÏÂ¼ì²é
-	}
-	if (z >= 5)return -board->currentPlayer;
-
-	if (x < 5 && y < 5 && z < 5 && w < 5 && board->currentPlayer == 1)return 2;
-	if (x < 5 && y < 5 && z < 5 && w < 5 && board->currentPlayer == 2)return 1;
+    for (i = 1; i < 5; i++) {
+        if (board->moves[board->movesCount - 1].cordx + i < DIMENSION &&
+            board->moves[board->movesCount - 1].cordy - i >= 0 &&
+            board->board[board->moves[board->movesCount - 1].cordx + i]
+                        [board->moves[board->movesCount - 1].cordy - i] == board->currentPlayer)
+            z++;
+        else
+            break; //å‘å³ä¸Šæ£€æŸ¥
+    }
+    for (i = 1; i < 5; i++) {
+        if (board->moves[board->movesCount - 1].cordx - i >= 0 &&
+            board->moves[board->movesCount - 1].cordy + i < DIMENSION &&
+            board->board[board->moves[board->movesCount - 1].cordx - i]
+                        [board->moves[board->movesCount - 1].cordy + i] == board->currentPlayer)
+            z++;
+        else
+            break; //å‘å·¦ä¸‹æ£€æŸ¥
+    }
+    if (z >= 5) return -board->currentPlayer;
+    // printf("%d %d %d %d\n", w, x, y, z);
+    return 1 + (board->currentPlayer & 1);
 }
-int saveBoard(struct Board* board) {
-	int i = 0, j = 0, m = 15, k = 0, data[1000];
-	for (i = 0; i < m; i++) {
-		for (j = 0; j < m; j++) {
-			data[k++] = board->board[i][j];
-		}
-	}
-	data[225] = board->type;
-	return data[1000];
-}
-int loadBoard(struct Board* board, int* saveData) {
-	int i = 0, j = 0, m = 15, k = 0, a = 0, b = 0, n;
-	saveData = saveBoard(board);
-	for (i = 0; i < m; i++) {
-		for (j = 0; j < m; j++)
-			board->board[i][j] = saveData[k++];
-	}
-	for (n = 0; n < 225; n++) {
-		if (saveData[n] == 1) a++;
-		else if (saveData[n] == 2) b++;
-	}
-	if (a == b) board->currentPlayer = 1;
-	else board->currentPlayer = 2;
-	board->type = saveData[225];
-	return 1;
-}
+int saveBoard(struct Board* board) {}
+int loadBoard(struct Board* board, char* saveData) {}

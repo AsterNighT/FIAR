@@ -2,8 +2,9 @@
 #pragma once
 #include "board.h"
 #include "menu.h"
-
+#include <stdio.h>
 int main() {
+    setvbuf(stdout, NULL, _IOFBF, 4096);
     struct Board* gameBoard = newBoard();
     char          data[512];
     while (1) {
