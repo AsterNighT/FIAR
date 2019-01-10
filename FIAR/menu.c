@@ -14,6 +14,7 @@ int displayDeveloperInfo() {
     Press any key to return to menu.\n\
     -------------------------------------------------------------------\n\
     ");
+    fflush(stdout);
     pause();
     return 0;
 }
@@ -29,6 +30,7 @@ int displayTutorial() {
     Press any key to return to menu.\n\
     -------------------------------------------------------------------\n\
     ");
+    fflush(stdout);
     pause();
     return 0;
 }
@@ -47,6 +49,7 @@ int displayMainMenu() {
     \033[40;33m7: Exit\033[0m\n\
     -------------------------------------------------------------------\n\
     ");
+    fflush(stdout);
     int c = 0;
     while (!isdigit(c = _getch()));
     return c - '0';
@@ -55,5 +58,6 @@ int displaySettingMenu() {}
 
 int displayExitInfo() {
     printf("Thank you for using. Program shutting down...\n");
+    fflush(stdout);
     return 0;
 }
