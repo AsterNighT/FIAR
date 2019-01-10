@@ -13,7 +13,7 @@ struct Board {
     int         gameStatus;
     int         currentCordX;
     int         currentCordY;
-	int         type;
+    int         type;
 };
 struct CharPair {
     char fst, snd;
